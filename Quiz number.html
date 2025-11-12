@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Adivinanza - Con Burlas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .game-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+        }
+        
+        .stat {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            min-width: 120px;
+        }
+        
+        .game-area {
+            margin: 1.5rem 0;
+        }
+        
+        input {
+            padding: 0.8rem;
+            font-size: 1.2rem;
+            width: 80px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            margin: 0 0.5rem;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #resetBtn {
+            background-color: #f44336;
+        }
+        
+        #resetBtn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .message {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .success {
+            background-color: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+        
+        .error {
+            background-color: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+        }
+        
+        .info {
+            background-color: rgba(33, 150, 243, 0.3);
+            border: 1px solid #2196F3;
+        }
+        
+        .taunt {
+            background-color: rgba(255, 193, 7, 0.3);
+            border: 1px solid #FFC107;
+            font-style: italic;
+        }
+        
+        .history {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        
+        #guessList {
+            list-style-type: none;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+        
+        #guessList li {
+            padding: 0.3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .taunt-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: rgba(255, 193, 7, 0.2);
+            border: 1px dashed #FFC107;
+        }
+        
+        #tauntMessage {
+            font-size: 1.1rem;
+            font-style: italic;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Adivina el Número 🎮</h1>
+        
+        <div class="game-info">
+            <p>Estoy pensando en un número entre <strong>1 y 100</strong>.</p>
+            <p>¡Adivina cuál es! Y prepárate para las burlas si fallas...</p>
+        </div>
+        
+        <div class="game-stats">
+            <div class="stat">
+                <p>Intentos: <span id="attempts">0</span></p>
+            </div>
+            <div class="stat">
+                <p>Récord: <span id="record">-</span></p>
+            </div>
+            <div class="stat">
+                <p>Fallas: <span id="fails">0</span></p>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <input type="number" id="guessInput" min="1" max="100" placeholder="1-100">
+            <button id="guessBtn">Adivinar</button>
+            <button id="resetBtn">Nuevo Juego</button>
+        </div>
+        
+        <div class="taunt-container">
+            <div id="tauntMessage">¡Acierta y calla mi boca!</div>
+        </div>
+        
+        <div class="message info" id="message">
+            ¡Ingresa un número y presiona "Adivinar"!
+        </div>
+        
+        <div class="history">
+            <h3>Tus intentos:</h3>
+            <ul id="guessList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Variables del juego
+        let secretNumber;
+        let attempts;
+        let fails;
+        let gameOver;
+        let record = localStorage.getItem('record') || '-';
+        
+        // Mensajes burlones organizados por nivel de frustración
+        const taunts = [
+            // Nivel 1: Burlas suaves (primeros 3 intentos)
+            [
+                "¿En serio? ¡Ese ni cerca!",
+                "¡Uy, qué frío! Como tu suerte...",
+                "¿Ese fue tu mejor intento?",
+                "Ni mi abuela, que tiene 95 años, elegiría ese número",
+                "¡Ja! Sigue intentando..."
+            ],
+            // Nivel 2: Burlas medias (intentos 4-7)
+            [
+                "¿Estás jugando con los ojos cerrados?",
+                "¡Qué pena! Otro fallo...",
+                "¿Necesitas unas gafas? Porque no ves el número correcto",
+                "Voy a empezar a sentir lástima por ti",
+                "¡Otro error! ¿Seguro que sabes contar?",
+                "me ves con cara de payaso creyendo que es ese numero"
+            ],
+            // Nivel 3: Burlas intensas (más de 7 intentos)
+            [
+                "¡JAJAJA! ¿En serio no lo adivinas aún?",
+                "Esto es patético... hasta un niño de 5 años lo haría mejor",
+                "¿Quieres que te dé una pista? ¡El número está entre 1 y 100!",
+                "Si sigues así, vamos a estar aquí hasta mañana",
+                "Tu estrategia de 'elegir al azar' no parece estar funcionando",
+                "¿Estás intentando batir un récord de intentos fallidos?",
+                "¡Vamos! Hasta el número pi (3.1416...) sería mejor opción",
+                "Creo que mi perro adivinaría más rápido que tú",
+                "que desperdicio de tiempo :("
+            ]
+        ];
+        
+        // Elementos del DOM
+        const guessInput = document.getElementById('guessInput');
+        const guessBtn = document.getElementById('guessBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const message = document.getElementById('message');
+        const tauntMessage = document.getElementById('tauntMessage');
+        const attemptsDisplay = document.getElementById('attempts');
+        const failsDisplay = document.getElementById('fails');
+        const recordDisplay = document.getElementById('record');
+        const guessList = document.getElementById('guessList');
+        
+        // Inicializar el juego
+        function initGame() {
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            fails = 0;
+            gameOver = false;
+            updateDisplay();
+            guessInput.value = '';
+            guessList.innerHTML = '';
+            message.textContent = '¡He elegido un número! Adivina cuál es.';
+            message.className = 'message info';
+            tauntMessage.textContent = '¡Acierta y calla mi boca!';
+            guessInput.focus();
+            
+            // Actualizar récord
+            recordDisplay.textContent = record;
+        }
+        
+        // Actualizar la pantalla
+        function updateDisplay() {
+            attemptsDisplay.textContent = attempts;
+            failsDisplay.textContent = fails;
+        }
+        
+        // Obtener un mensaje burlón aleatorio según el nivel de frustración
+        function getRandomTaunt() {
+            let level;
+            if (fails <= 3) {
+                level = 0; // Burlas suaves
+            } else if (fails <= 7) {
+                level = 1; // Burlas medias
+            } else {
+                level = 2; // Burlas intensas
+            }
+            
+            const levelTaunts = taunts[level];
+            return levelTaunts[Math.floor(Math.random() * levelTaunts.length)];
+        }
+        
+        // Manejar el intento de adivinanza
+        function makeGuess() {
+            if (gameOver) return;
+            
+            const guess = parseInt(guessInput.value);
+            
+            // Validar la entrada
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                message.textContent = 'Por favor, ingresa un número válido entre 1 y 100.';
+                message.className = 'message error';
+                tauntMessage.textContent = '¡Ni siquiera sabes ingresar un número correctamente!';
+                guessInput.value = '';
+                guessInput.focus();
+                return;
+            }
+            
+            attempts++;
+            
+            // Agregar a la lista de intentos
+            const listItem = document.createElement('li');
+            listItem.textContent = `Intento ${attempts}: ${guess}`;
+            guessList.appendChild(listItem);
+            guessList.scrollTop = guessList.scrollHeight;
+            
+            // Comprobar si adivinó
+            if (guess === secretNumber) {
+                message.textContent = `¡Felicidades! Adivinaste el número ${secretNumber} en ${attempts} intentos.`;
+                message.className = 'message success';
+                tauntMessage.textContent = '¡Vaya, has tenido suerte! Pero la próxima vez no será tan fácil.';
+                gameOver = true;
+                
+                // Actualizar récord si es necesario
+                if (record === '-' || attempts < parseInt(record)) {
+                    record = attempts;
+                    localStorage.setItem('record', record);
+                    recordDisplay.textContent = record;
+                    message.textContent += ' ¡Nuevo récord!';
+                }
+            } else {
+                fails++;
+                // Obtener y mostrar mensaje burlón
+                const taunt = getRandomTaunt();
+                tauntMessage.textContent = taunt;
+                
+                // Dar pistas
+                const difference = Math.abs(secretNumber - guess);
+                let hint = '';
+                
+                if (difference <= 5) {
+                    hint = '¡Muy caliente!';
+                    message.className = 'message success';
+                } else if (difference <= 15) {
+                    hint = 'Caliente';
+                    message.className = 'message info';
+                } else if (difference <= 30) {
+                    hint = 'Tibio';
+                    message.className = 'message info';
+                } else {
+                    hint = 'Frío';
+                    message.className = 'message error';
+                }
+                
+                const direction = guess < secretNumber ? 'mayor' : 'menor';
+                message.textContent = `${hint} - El número es ${direction} que ${guess}. Sigue intentando.`;
+            }
+            
+            updateDisplay();
+            guessInput.value = '';
+            guessInput.focus();
+        }
+        
+        // Event Listeners
+        guessBtn.addEventListener('click', makeGuess);
+        
+        resetBtn.addEventListener('click', initGame);
+        
+        guessInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                makeGuess();
+            }
+        });
+        
+        // Iniciar el juego al cargar la página
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
